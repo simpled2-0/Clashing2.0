@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DroidWeb - Android Emulator Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        .control-panel {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            height: fit-content;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .device-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .android-device {
+            width: 320px;
+            height: 600px;
+            background: #000;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #4CAF50 0%, #2196F3 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            height: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .home-screen {
+            padding: 20px;
+            height: calc(100% - 24px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .app-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+            transform: scale(1.02);
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .installed-apps {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .app-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+        }
+
+        .app-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            margin-right: 0.5rem;
+        }
+
+        .device-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #e9ecef;
+        }
+
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .home-time {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 200;
+            margin-top: 60px;
+        }
+
+        .home-date {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 DroidWeb Emulator</h1>
+        <p>Run Android apps directly in your browser</p>
+    </div>
+
+    <div class="main-container">
+        <div class="control-panel">
+            <div class="control-section">
+                <h3>📱 Upload XAPK/APK</h3>
+                <div class="upload-area" id="uploadArea">
+                    <div>🔄</div>
+                    <p>Drag & drop your XAPK/APK files here</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Or click to browse</p>
+                    <input type="file" id="fileInput" accept=".apk,.xapk" multiple style="display: none;">
+                </div>
+                <button class="btn" id="installBtn" disabled>Install App</button>
+            </div>
+
+            <div class="control-section">
+                <h3>📋 Installed Apps</h3>
+                <div class="installed-apps" id="installedApps">
+                    <div class="app-item">
+                        <div style="width:30px;height:30px;background:#4CAF50;border-radius:6px;margin-right:0.5rem;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;">📞</div>
+                        <span>Phone</span>
+                    </div>
+                    <div class="app-item">
+                        <div style="width:30px;height:30px;background:#2196F3;border-radius:6px;margin-right:0.5rem;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;">💬</div>
+                        <span>Messages</span>
+                    </div>
+                    <div class="app-item">
+                        <div style="width:30px;height:30px;background:#FF5722;border-radius:6px;margin-right:0.5rem;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;">🌐</div>
+                        <span>Chrome</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>🎮 Device Controls</h3>
+                <div class="device-controls">
+                    <div class="control-btn" onclick="deviceAction('home')">🏠 Home</div>
+                    <div class="control-btn" onclick="deviceAction('back')">⬅️ Back</div>
+                    <div class="control-btn" onclick="deviceAction('menu')">☰ Menu</div>
+                    <div class="control-btn" onclick="deviceAction('volume_up')">🔊 Vol+</div>
+                    <div class="control-btn" onclick="deviceAction('volume_down')">🔉 Vol-</div>
+                    <div class="control-btn" onclick="deviceAction('power')">⚡ Power</div>
+                </div>
+            </div>
+
+            <div class="status">
+                🟢 Device Status: Online<br>
+                📱 Android 12 (API 31)<br>
+                💾 RAM: 2GB Available
+            </div>
+        </div>
+
+        <div class="device-container">
+            <div class="android-device">
+                <div class="screen" id="screen">
+                    <div class="status-bar">
+                        <span id="currentTime">12:34</span>
+                        <span>📶 📴 🔋85%</span>
+                    </div>
+                    <div class="home-screen" id="homeScreen">
+                        <div class="home-time" id="homeTime">12:34</div>
+                        <div class="home-date" id="homeDate">Thursday, August 14</div>
+                        
+                        <div class="app-grid">
+                            <div class="app-icon" style="background: #4CAF50;" onclick="launchApp('phone')">📞</div>
+                            <div class="app-icon" style="background: #2196F3;" onclick="launchApp('messages')">💬</div>
+                            <div class="app-icon" style="background: #FF5722;" onclick="launchApp('chrome')">🌐</div>
+                            <div class="app-icon" style="background: #9C27B0;" onclick="launchApp('camera')">📷</div>
+                            <div class="app-icon" style="background: #FF9800;" onclick="launchApp('gallery')">🖼️</div>
+                            <div class="app-icon" style="background: #607D8B;" onclick="launchApp('settings')">⚙️</div>
+                            <div class="app-icon" style="background: #795548;" onclick="launchApp('files')">📁</div>
+                            <div class="app-icon" style="background: #E91E63;" onclick="launchApp('music')">🎵</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let installedApps = ['Phone', 'Messages', 'Chrome', 'Camera', 'Gallery', 'Settings', 'Files', 'Music'];
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('homeTime').textContent = timeStr;
+            
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('homeDate').textContent = dateStr;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const installBtn = document.getElementById('installBtn');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = [];
+            const validFiles = [];
+            
+            Array.from(files).forEach(file => {
+                if (file.name.toLowerCase().endsWith('.apk') || file.name.toLowerCase().endsWith('.xapk')) {
+                    selectedFiles.push(file);
+                    validFiles.push(file);
+                } else {
+                    showNotification(`❌ ${file.name} is not a valid APK/XAPK file`);
+                }
+            });
+            
+            if (validFiles.length > 0) {
+                uploadArea.innerHTML = `
+                    <div>✅</div>
+                    <p>${validFiles.length} valid APK/XAPK file(s) selected</p>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                        ${validFiles.map(f => `📦 ${f.name} (${formatFileSize(f.size)})`).join('<br>')}
+                    </div>
+                `;
+                installBtn.disabled = false;
+            } else {
+                uploadArea.innerHTML = `
+                    <div>❌</div>
+                    <p>No valid APK/XAPK files found</p>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Please upload .apk or .xapk files</p>
+                `;
+                installBtn.disabled = true;
+            }
+        }
+
+        installBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+            
+            installBtn.textContent = 'Processing APKs...';
+            installBtn.disabled = true;
+            installBtn.classList.add('loading');
+
+            // Process each APK file
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                installBtn.textContent = `Installing ${i + 1}/${selectedFiles.length}...`;
+                
+                try {
+                    // Simulate reading APK metadata
+                    await processAPK(file);
+                    
+                    // Add to installed apps
+                    const appName = file.name.replace(/\.(apk|xapk)$/i, '');
+                    const appIcon = getAppIcon(file.name);
+                    
+                    const appItem = document.createElement('div');
+                    appItem.className = 'app-item';
+                    appItem.onclick = () => launchApp(appName);
+                    appItem.style.cursor = 'pointer';
+                    appItem.innerHTML = `
+                        <div style="width:30px;height:30px;background:${getRandomColor()};border-radius:6px;margin-right:0.5rem;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;">${appIcon}</div>
+                        <span>${appName}</span>
+                        <span style="margin-left:auto;font-size:0.8rem;color:#666;">${formatFileSize(file.size)}</span>
+                    `;
+                    document.getElementById('installedApps').appendChild(appItem);
+                    
+                    // Add to home screen
+                    addAppToHomeScreen(appName, appIcon);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate install time
+                    
+                } catch (error) {
+                    showNotification(`❌ Failed to install ${file.name}: ${error.message}`);
+                }
+            }
+
+            installBtn.textContent = 'Install App';
+            installBtn.disabled = false;
+            installBtn.classList.remove('loading');
+            
+            // Reset upload area
+            resetUploadArea();
+            selectedFiles = [];
+            
+            showNotification(`🎉 Successfully installed ${selectedFiles.length} app(s)!`);
+        });
+
+        function deviceAction(action) {
+            showNotification(`${action.replace('_', ' ').toUpperCase()} pressed`);
+            
+            if (action === 'home') {
+                document.getElementById('homeScreen').style.display = 'flex';
+            }
+        }
+
+        function launchApp(appName) {
+            showNotification(`Opening ${appName}...`);
+            
+            // Simulate app opening
+            const screen = document.getElementById('screen');
+            const originalContent = screen.innerHTML;
+            
+            screen.innerHTML = `
+                <div class="status-bar">
+                    <span>${document.getElementById('currentTime').textContent}</span>
+                    <span>📶 📴 🔋85%</span>
+                </div>
+                <div style="padding: 20px; height: calc(100% - 24px); display: flex; align-items: center; justify-content: center; flex-direction: column; color: white;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📱</div>
+                    <h2>${appName.charAt(0).toUpperCase() + appName.slice(1)}</h2>
+                    <p style="opacity: 0.7; margin-top: 0.5rem;">App running in demo mode</p>
+                    <button onclick="returnHome()" style="margin-top: 2rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer;">Return to Home</button>
+                </div>
+            `;
+        }
+
+        function returnHome() {
+            location.reload(); // Simple way to return to home screen
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 1rem;
+                border-radius: 5px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Helper functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function getAppIcon(filename) {
+            const icons = ['📱', '🎮', '📚', '🎵', '📷', '🛒', '💬', '🌐', '⚡', '🔧'];
+            const hash = filename.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            return icons[Math.abs(hash) % icons.length];
+        }
+        
+        function getRandomColor() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF', '#5F27CD'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        async function processAPK(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const arrayBuffer = e.target.result;
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    
+                    // Check if it's a valid ZIP file (APKs are ZIP files)
+                    if (uint8Array[0] === 0x50 && uint8Array[1] === 0x4B) {
+                        showNotification(`✅ Valid APK detected: ${file.name}`);
+                        resolve(true);
+                    } else {
+                        reject(new Error('Invalid APK format'));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        function addAppToHomeScreen(appName, icon) {
+            const appGrid = document.querySelector('.app-grid');
+            const newApp = document.createElement('div');
+            newApp.className = 'app-icon';
+            newApp.style.background = getRandomColor();
+            newApp.textContent = icon;
+            newApp.onclick = () => launchApp(appName);
+            appGrid.appendChild(newApp);
+        }
+        
+        console.log('🤖 DroidWeb Emulator Demo Loaded');
+        console.log('📱 This is a demo interface - actual Android emulation requires server-side infrastructure');
+    </script>
+</body>
+</html>
